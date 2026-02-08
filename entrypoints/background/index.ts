@@ -1,43 +1,40 @@
 import redirects from '../../redirects.json';
 
-const STORAGE_KEY = 'redirectsEnabled';
+const STORAGE_KEY = 'disabledRedirects';
 
-async function isEnabled(): Promise<boolean> {
+async function getDisabled(): Promise<Set<string>> {
   const result = await chrome.storage.local.get(STORAGE_KEY);
-  return result[STORAGE_KEY] !== false;
+  return new Set(result[STORAGE_KEY] || []);
 }
 
-function buildRules(): chrome.declarativeNetRequest.Rule[] {
-  return redirects.map((r, i) => ({
-    id: i + 1,
-    priority: 1,
-    action: {
-      type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
-      redirect: {
-        transform: { host: r.to },
+function buildRules(disabled: Set<string>): chrome.declarativeNetRequest.Rule[] {
+  return redirects
+    .filter((r) => !disabled.has(r.from))
+    .map((r, i) => ({
+      id: i + 1,
+      priority: 1,
+      action: {
+        type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
+        redirect: {
+          transform: { host: r.to },
+        },
       },
-    },
-    condition: {
-      urlFilter: `||${r.from}`,
-      resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME],
-    },
-  }));
+      condition: {
+        requestDomains: [r.from],
+        resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME],
+      },
+    }));
 }
 
 async function updateRules() {
   const existing = await chrome.declarativeNetRequest.getDynamicRules();
   const removeIds = existing.map((r) => r.id);
+  const disabled = await getDisabled();
 
-  if (await isEnabled()) {
-    await chrome.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: removeIds,
-      addRules: buildRules(),
-    });
-  } else {
-    await chrome.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: removeIds,
-    });
-  }
+  await chrome.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: removeIds,
+    addRules: buildRules(disabled),
+  });
 }
 
 export default defineBackground(() => {
@@ -50,14 +47,19 @@ export default defineBackground(() => {
   });
 
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-    if (msg.type === 'toggle') {
-      chrome.storage.local.set({ [STORAGE_KEY]: msg.enabled }).then(() => {
+    if (msg.type === 'setDisabled') {
+      chrome.storage.local.set({ [STORAGE_KEY]: msg.disabled }).then(() => {
         updateRules().then(() => sendResponse({ ok: true }));
       });
       return true;
     }
     if (msg.type === 'getState') {
-      isEnabled().then((enabled) => sendResponse({ enabled }));
+      getDisabled().then((disabled) =>
+        sendResponse({
+          redirects,
+          disabled: Array.from(disabled),
+        })
+      );
       return true;
     }
   });

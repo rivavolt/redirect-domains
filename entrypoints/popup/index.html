@@ -6,21 +6,33 @@
     <title>Redirect Domains</title>
     <style>
       body {
-        width: 220px;
-        padding: 16px;
+        width: 240px;
+        padding: 12px;
         font-family: system-ui, sans-serif;
-        font-size: 14px;
+        font-size: 13px;
         margin: 0;
       }
       .row {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        padding: 4px 0;
+      }
+      .row + .row {
+        border-top: 1px solid #eee;
+      }
+      .label {
+        color: #555;
+      }
+      .label .to {
+        color: #999;
       }
       .toggle {
         position: relative;
-        width: 40px;
-        height: 22px;
+        width: 36px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-left: 8px;
       }
       .toggle input {
         opacity: 0;
@@ -31,15 +43,15 @@
         position: absolute;
         inset: 0;
         background: #ccc;
-        border-radius: 22px;
+        border-radius: 20px;
         cursor: pointer;
         transition: background 0.2s;
       }
       .slider::before {
         content: '';
         position: absolute;
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
         left: 3px;
         bottom: 3px;
         background: #fff;
@@ -50,18 +62,12 @@
         background: #4caf50;
       }
       input:checked + .slider::before {
-        transform: translateX(18px);
+        transform: translateX(16px);
       }
     </style>
   </head>
   <body>
-    <div class="row">
-      <span>Redirects</span>
-      <label class="toggle">
-        <input type="checkbox" id="toggle" />
-        <span class="slider"></span>
-      </label>
-    </div>
+    <div id="list"></div>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>
