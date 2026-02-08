@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirect Domains</title>
+    <style>
+      body {
+        width: 220px;
+        padding: 16px;
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+        margin: 0;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .toggle {
+        position: relative;
+        width: 40px;
+        height: 22px;
+      }
+      .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        inset: 0;
+        background: #ccc;
+        border-radius: 22px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .slider::before {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        left: 3px;
+        bottom: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: transform 0.2s;
+      }
+      input:checked + .slider {
+        background: #4caf50;
+      }
+      input:checked + .slider::before {
+        transform: translateX(18px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="row">
+      <span>Redirects</span>
+      <label class="toggle">
+        <input type="checkbox" id="toggle" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

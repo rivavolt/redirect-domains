@@ -1,0 +1,16 @@
+{
+  "name": "redirect-domains",
+  "version": "0.1.0",
+  "description": "Chrome extension that redirects domains based on declarative config",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "postinstall": "wxt prepare"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.277",
+    "typescript": "^5.9.3",
+    "wxt": "^0.20.13"
+  }
+}
