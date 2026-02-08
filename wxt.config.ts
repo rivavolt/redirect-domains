@@ -8,5 +8,14 @@ export default defineConfig({
     description: 'Redirects domains based on declarative config',
     permissions: ['declarativeNetRequest', 'storage'],
     host_permissions: ['<all_urls>'],
+    declarative_net_request: {
+      rule_resources: [
+        {
+          id: 'redirects',
+          enabled: true,
+          path: 'rules.json',
+        },
+      ],
+    },
   },
 });

@@ -1,9 +1,12 @@
 const list = document.getElementById('list')!;
 
 chrome.runtime.sendMessage({ type: 'getState' }, (res) => {
-  const disabled = new Set<string>(res.disabled);
+  const disabledRuleIds = new Set<number>(res.disabledRuleIds);
 
-  for (const r of res.redirects) {
+  for (let i = 0; i < res.redirects.length; i++) {
+    const r = res.redirects[i];
+    const ruleId = i + 1;
+
     const row = document.createElement('div');
     row.className = 'row';
 
@@ -16,16 +19,16 @@ chrome.runtime.sendMessage({ type: 'getState' }, (res) => {
 
     const input = document.createElement('input');
     input.type = 'checkbox';
-    input.checked = !disabled.has(r.from);
+    input.checked = !disabledRuleIds.has(ruleId);
     input.addEventListener('change', () => {
       if (input.checked) {
-        disabled.delete(r.from);
+        disabledRuleIds.delete(ruleId);
       } else {
-        disabled.add(r.from);
+        disabledRuleIds.add(ruleId);
       }
       chrome.runtime.sendMessage({
-        type: 'setDisabled',
-        disabled: Array.from(disabled),
+        type: 'setDisabledRuleIds',
+        disabledRuleIds: Array.from(disabledRuleIds),
       });
     });
 
