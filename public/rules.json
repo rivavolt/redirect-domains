@@ -3,12 +3,12 @@
     "id": 1,
     "priority": 1,
     "action": { "type": "redirect", "redirect": { "transform": { "host": "xcancel.com" } } },
-    "condition": { "requestDomains": ["x.com"], "resourceTypes": ["main_frame"] }
+    "condition": { "urlFilter": "||x.com", "resourceTypes": ["main_frame"] }
   },
   {
     "id": 2,
     "priority": 1,
     "action": { "type": "redirect", "redirect": { "transform": { "host": "xcancel.com" } } },
-    "condition": { "requestDomains": ["twitter.com"], "resourceTypes": ["main_frame"] }
+    "condition": { "urlFilter": "||twitter.com", "resourceTypes": ["main_frame"] }
   }
 ]
