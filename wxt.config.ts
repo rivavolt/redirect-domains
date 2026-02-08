@@ -1,7 +1,4 @@
 import { defineConfig } from 'wxt';
-import redirects from './redirects.json';
-
-const hosts = redirects.map((r) => `*://*.${r.from}/*`);
 
 export default defineConfig({
   modules: [],
@@ -10,6 +7,6 @@ export default defineConfig({
     version: '0.1.0',
     description: 'Redirects domains based on declarative config',
     permissions: ['declarativeNetRequest', 'storage'],
-    host_permissions: hosts,
+    host_permissions: ['<all_urls>'],
   },
 });
