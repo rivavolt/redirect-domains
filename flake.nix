@@ -10,8 +10,8 @@
       packages = forAllSystems (system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-        in {
-          default = pkgs.buildNpmPackage {
+
+          extension = pkgs.buildNpmPackage {
             pname = "redirect-domains";
             version = "0.1.0";
             src = self;
@@ -37,6 +37,32 @@
 
             dontNpmInstall = true;
           };
+
+          manifest = builtins.fromJSON (builtins.readFile "${extension}/share/chromium-extension/manifest.json");
+
+          extId = builtins.readFile (pkgs.runCommand "redirect-domains-ext-id" {
+            nativeBuildInputs = [ pkgs.python3 pkgs.openssl ];
+          } ''
+            python3 ${./nix/crx-id.py} ${./keys/signing.pem} > $out
+          '');
+
+          crx = pkgs.runCommand "redirect-domains-crx" {
+            nativeBuildInputs = [ pkgs.python3 pkgs.openssl ];
+          } ''
+            mkdir -p $out
+            python3 ${./nix/pack-crx3.py} ${extension}/share/chromium-extension ${./keys/signing.pem} $out/extension.crx
+          '';
+
+        in {
+          inherit extension;
+          default = pkgs.linkFarm "redirect-domains" [
+            { name = "share/chromium/extensions/${extId}.json";
+              path = pkgs.writeText "${extId}.json" (builtins.toJSON {
+                external_crx = "${crx}/extension.crx";
+                external_version = manifest.version;
+              });
+            }
+          ];
         });
     };
 }
