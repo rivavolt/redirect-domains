@@ -42,6 +42,8 @@
           crxPkg = nix-crx.lib.mkCrxPackage {
             inherit pkgs extension;
             key = ./keys/signing.pem;
+            extId = "kfjckjhlmhkghgjgcckdclcoilodmajh";
+            version = (builtins.fromJSON (builtins.readFile ./package.json)).version;
           };
 
         in {
