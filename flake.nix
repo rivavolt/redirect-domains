@@ -1,10 +1,10 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nix-crx.url = "github:rivavolt/nix-crx";
+    nix-webext.url = "github:rivavolt/nix-webext";
   };
 
-  outputs = { self, nixpkgs, nix-crx }:
+  outputs = { self, nixpkgs, nix-webext }:
     let
       forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
     in {
@@ -39,16 +39,20 @@
             dontNpmInstall = true;
           };
 
-          crxPkg = nix-crx.lib.mkCrxPackage {
+          # WXT emits the Chrome manifest already; the build is keyless (CRX
+          # signed at activation from the sops key). extId is the stable Chrome ID
+          # the old committed key derived. Chrome-only.
+          ext = nix-webext.lib.mkBrowserExtension {
             inherit pkgs extension;
-            key = ./keys/signing.pem;
-            extId = "kfjckjhlmhkghgjgcckdclcoilodmajh";
+            pname = "redirect-domains";
             version = (builtins.fromJSON (builtins.readFile ./package.json)).version;
+            extId = "kfjckjhlmhkghgjgcckdclcoilodmajh";
+            firefox = false;
+            transformManifest = false;
           };
-
         in {
           inherit extension;
-          default = crxPkg.package;
+          inherit (ext) default chrome;
         });
     };
 }
